@@ -14,7 +14,17 @@ namespace LCR
     {
         private static readonly Random _random = new Random();
 
-        private int _numberOfPlayers = 3;
+        /// <summary>
+        /// The default number of players
+        /// </summary>
+        public const int DefaultNumberOfPlayers = 3;
+
+        /// <summary>
+        /// The default number of games to be played
+        /// </summary>
+        public const int DefaultNumberOfGames = 100;
+
+        private int _numberOfPlayers = DefaultNumberOfPlayers;
 
         /// <summary>
         /// Gets or sets the number of players
@@ -39,7 +49,7 @@ namespace LCR
             }
         }
 
-        private int _numberOfGames = 100;
+        private int _numberOfGames = DefaultNumberOfGames;
 
         /// <summary>
         /// Gets or sets the number of games to be played
@@ -174,7 +184,7 @@ namespace LCR
                 LongestGameLength = 0;
                 _totalNumberOfTurns = 0;
 
-                Players = new ObservableCollection<PlayerViewModel>(GetPlayers(NumberOfPlayers));
+                Players = new ObservableCollection<PlayerViewModel>(CreatePlayers(NumberOfPlayers));
 
                 for (int gameNumber = 0; gameNumber < _numberOfGames; gameNumber++)
                 {
@@ -206,6 +216,14 @@ namespace LCR
             {
                 EnablePlayButton = true;
             }
+        }
+
+        public SimulationViewModel(int numberOfPlayers = DefaultNumberOfPlayers, int numberOfGames = DefaultNumberOfGames)
+        {
+            this.NumberOfPlayers = numberOfPlayers;
+            this.NumberOfGames = numberOfGames;
+
+            RunSimulation();
         }
 
         /// <summary>
@@ -264,9 +282,11 @@ namespace LCR
             return turnNumber;
         }
 
-        private IEnumerable<PlayerViewModel> GetPlayers(int count)
+        private static IEnumerable<PlayerViewModel> CreatePlayers(int playerCount)
         {
-            return Enumerable.Range(0, count).Select(i => new PlayerViewModel(i));
+            Debug.Assert(playerCount > 0);
+
+            return Enumerable.Range(0, playerCount).Select(playerNumber => new PlayerViewModel(playerNumber));
         }
 
         private PlayerViewModel GetPlayerAfter(PlayerViewModel player)
