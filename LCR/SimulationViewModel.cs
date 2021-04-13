@@ -223,7 +223,7 @@ namespace LCR
             // Pick the first player at random
             PlayerViewModel currentPlayer = _players[_random.Next(NumberOfPlayers)];
 
-            int turnNumber = 1;
+            int turnNumber = 0;
 
             // Players take turns until only one has chips, who is then the winner
             while (!GameEnded())
