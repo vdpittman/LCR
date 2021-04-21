@@ -18,7 +18,7 @@ namespace LCR
     /// <summary>
     /// Class representing an individual die
     /// </summary>
-    public class DieViewModel : ViewModelBase
+    public class Die : ViewModelBase
     {
         private static readonly int _faceCount = Enum.GetNames(typeof(Face)).Length;
 
@@ -49,7 +49,7 @@ namespace LCR
         /// <summary>
         /// Initializes an object of this class
         /// </summary>
-        public DieViewModel()
+        public Die()
         {
             Roll();
         }
@@ -60,10 +60,7 @@ namespace LCR
         /// <returns>The new face value</returns>
         public Face Roll()
         {
-            Face = (Face)_random.Next(_faceCount);
-
-            return Face;
+            return Face = (Face)_random.Next(_faceCount);
         }
-
     }
 }

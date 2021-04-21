@@ -20,7 +20,7 @@ namespace LCR
     /// </summary>
     public partial class MainWindow : Window
     {
-        private readonly SimulationViewModel _viewModel;
+        private readonly Simulation _viewModel;
 
         /// <summary>
         /// Initializes an object of this class
@@ -29,7 +29,7 @@ namespace LCR
         {
             InitializeComponent();
 
-            DataContext = _viewModel = new SimulationViewModel();
+            DataContext = _viewModel = new Simulation();
         }
 
         private void PlayButton_Click(object sender, RoutedEventArgs e)

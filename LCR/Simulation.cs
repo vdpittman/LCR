@@ -10,9 +10,14 @@ namespace LCR
     /// <summary>
     /// Class representing a simulation
     /// </summary>
-    public class SimulationViewModel : ViewModelBase
+    public class Simulation : ViewModelBase
     {
         private static readonly Random _random = new Random();
+
+        /// <summary>
+        /// Number of chips initially distributed to each player
+        /// </summary>
+        private const int InitialNumberOfChips = 3;
 
         /// <summary>
         /// The default number of players
@@ -74,14 +79,14 @@ namespace LCR
             }
         }
 
-        private readonly DieViewModel _die = new DieViewModel();
+        private readonly Die _die = new Die();
 
-        private ObservableCollection<PlayerViewModel> _players;
+        private ObservableCollection<Player> _players;
 
         /// <summary>
         /// Gets or sets the collection of players
         /// </summary>
-        public ObservableCollection<PlayerViewModel> Players
+        public ObservableCollection<Player> Players
         {
             get
             {
@@ -184,7 +189,7 @@ namespace LCR
                 LongestGameLength = 0;
                 _totalNumberOfTurns = 0;
 
-                Players = new ObservableCollection<PlayerViewModel>(CreatePlayers(NumberOfPlayers));
+                Players = new ObservableCollection<Player>(CreatePlayers(NumberOfPlayers));
 
                 for (int gameNumber = 0; gameNumber < _numberOfGames; gameNumber++)
                 {
@@ -202,7 +207,7 @@ namespace LCR
                         LongestGameLength = Math.Max(LongestGameLength, gameLength);
                     }
 
-                    PlayerViewModel winner = Players.FirstOrDefault(player => player.NumberOfChips > 0);
+                    Player winner = Players.FirstOrDefault(player => player.NumberOfChips > 0);
                     Debug.Assert(winner != null);
                     if (winner != null)
                     {
@@ -218,8 +223,16 @@ namespace LCR
             }
         }
 
-        public SimulationViewModel(int numberOfPlayers = DefaultNumberOfPlayers, int numberOfGames = DefaultNumberOfGames)
+        /// <summary>
+        /// Constructs an object of this class
+        /// </summary>
+        /// <param name="numberOfPlayers">The number of players</param>
+        /// <param name="numberOfGames">The number of games to be played</param>
+        public Simulation(int numberOfPlayers = DefaultNumberOfPlayers, int numberOfGames = DefaultNumberOfGames)
         {
+            Debug.Assert(numberOfPlayers > 1);
+            Debug.Assert(numberOfGames > 0);
+
             this.NumberOfPlayers = numberOfPlayers;
             this.NumberOfGames = numberOfGames;
 
@@ -233,45 +246,43 @@ namespace LCR
         private int PlayGame()
         {
             // Give each player three chips
-            foreach (PlayerViewModel player in _players)
+            foreach (Player player in _players)
             {
-                player.NumberOfChips = 3;
+                player.NumberOfChips = InitialNumberOfChips;
             }
 
             // Pick the first player at random
-            PlayerViewModel currentPlayer = _players[_random.Next(NumberOfPlayers)];
+            Player currentPlayer = _players[_random.Next(NumberOfPlayers)];
 
             int turnNumber = 0;
 
             // Players take turns until only one has chips, who is then the winner
             while (!GameEnded())
             {
-                if (currentPlayer.NumberOfChips > 0)
+                // Get number of dice rolls
+                int numberOfRolls = Math.Min(InitialNumberOfChips, currentPlayer.NumberOfChips);
+
+                // Take action based on the face value of each die roll.
+                // Note: numberOfRolls can be zero
+                for (int rollNumber = 0; rollNumber < numberOfRolls; rollNumber++)
                 {
-                    // Get number of dice rolls
-                    int numberOfDice = Math.Min(3, currentPlayer.NumberOfChips);
-
-                    // Take action based on the face value of each die roll
-                    for (int dieNumber = 0; dieNumber < numberOfDice; dieNumber++)
+                    switch (_die.Roll())
                     {
-                        switch (_die.Roll())
-                        {
-                            case Face.Left:
-                                // Give a chip to the player on the left
-                                currentPlayer.GiveChipTo(GetPlayerBefore(currentPlayer));
-                                break;
+                        case Face.Left:
+                            // Give a chip to the player on the left
+                            currentPlayer.GiveChipTo(GetPlayerBefore(currentPlayer));
+                            break;
 
-                            case Face.Right:
-                                // Give a chip to the player on the right
-                                currentPlayer.GiveChipTo(GetPlayerAfter(currentPlayer));
-                                break;
+                        case Face.Right:
+                            // Give a chip to the player on the right
+                            currentPlayer.GiveChipTo(GetPlayerAfter(currentPlayer));
+                            break;
 
-                            case Face.Center:
-                                // Put a chip in the center
-                                // Note: No need to keep a count of chips in the center
-                                currentPlayer.NumberOfChips--;
-                                break;
-                        }
+                        case Face.Center:
+                            // Put a chip in the center
+                            // Note: No need to keep a count of chips in the center
+                            currentPlayer.NumberOfChips--;
+                            break;
                     }
                 }
 
@@ -282,14 +293,14 @@ namespace LCR
             return turnNumber;
         }
 
-        private static IEnumerable<PlayerViewModel> CreatePlayers(int playerCount)
+        private static IEnumerable<Player> CreatePlayers(int playerCount)
         {
             Debug.Assert(playerCount > 0);
 
-            return Enumerable.Range(0, playerCount).Select(playerNumber => new PlayerViewModel(playerNumber));
+            return Enumerable.Range(0, playerCount).Select(playerNumber => new Player(playerNumber));
         }
 
-        private PlayerViewModel GetPlayerAfter(PlayerViewModel player)
+        private Player GetPlayerAfter(Player player)
         {
             Debug.Assert(player != null);
 
@@ -298,7 +309,7 @@ namespace LCR
             return playerNumber >= NumberOfPlayers ? Players.First() : Players[playerNumber];
         }
 
-        private PlayerViewModel GetPlayerBefore(PlayerViewModel player)
+        private Player GetPlayerBefore(Player player)
         {
             Debug.Assert(player != null);
 

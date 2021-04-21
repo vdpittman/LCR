@@ -7,7 +7,10 @@ using System.Threading.Tasks;
 
 namespace LCR
 {
-    public class PlayerViewModel : ViewModelBase
+    /// <summary>
+    /// Class representing a player
+    /// </summary>
+    public class Player : ViewModelBase
     {
         private int _playerNumber = 0;
 
@@ -77,7 +80,7 @@ namespace LCR
         /// Initializes an object of this class
         /// </summary>
         /// <param name="playerNumber">The player number</param>
-        public PlayerViewModel(int playerNumber)
+        public Player(int playerNumber)
         {
             PlayerNumber = playerNumber;
         }
@@ -86,7 +89,7 @@ namespace LCR
         /// Give a chip to the designated player
         /// </summary>
         /// <param name="player">The player to receive the chip</param>
-        public void GiveChipTo(PlayerViewModel player)
+        public void GiveChipTo(Player player)
         {
             Debug.Assert(player != null && NumberOfChips > 0);
 
